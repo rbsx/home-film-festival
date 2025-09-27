@@ -1,18 +1,21 @@
-import { useSignal } from "@preact/signals";
 import { Film, TrackWithFilms } from "../db/type.ts";
 import { Skeleton } from "../components/Skeleton.tsx";
 
-export const Track = ({ track, selectedIndexes, setSelectedIndexes }: { track: TrackWithFilms, selectedIndexes: number[], setSelectedIndexes: (index: number) => void }) => {
-  const selectedFilm = useSignal<string | null>(null);
+export const Track = ({ track, selectedIndexes, setSelectedIndexes }: { track: TrackWithFilms, selectedIndexes: string[], setSelectedIndexes: (args:{index: number, id: string}) => void }) => {
+  const isFilmSelected = (id: string) => {
+    return selectedIndexes.includes(id);
+  }
+
+  const isIndexSelected = (index: number) => {
+    return selectedIndexes.at(index);
+  }
 
   const setSelectedFilm = (film: Film, index: number) => {
-    console.log("setSelectedFilm", index, selectedIndexes);
-    if (selectedIndexes.includes(index)) {
+    if (selectedIndexes.at(index)) {
       return;
     }
 
-    selectedFilm.value = film.id;
-    setSelectedIndexes(index);
+    setSelectedIndexes({index, id: film.id});
   }
 
   const simpleHash = (str: string) => {
@@ -37,21 +40,21 @@ export const Track = ({ track, selectedIndexes, setSelectedIndexes }: { track: T
               bg-gray-200 rounded-lg p-4 relative 
               overflow-hidden z-50 inset-0 transform-gpu 
               [transform-style:preserve-3d] 
-              ${selectedFilm.value === film.id ? "animate-flip-y" : "animate-unflip-y"}
-              ${selectedIndexes.includes(index) && selectedFilm.value !== film.id ? "grayscale" : ""}
+              ${isFilmSelected(film.id) ? "animate-flip-y" : "animate-unflip-y"}
+              ${isIndexSelected(index) && !(isFilmSelected(film.id)) ? "grayscale" : ""}
             `}
           >
             <img
               src={film.poster_url ?? ""}
               alt={film.title}
-              class={`absolute bottom-0 left-0 -z-0 w-full h-full ${selectedFilm.value === film.id ? "blur-[1px] [transform:rotateY(180deg)]" : "blur-xl"}`}
+              class={`absolute bottom-0 left-0 -z-0 w-full h-full ${isFilmSelected(film.id) ? "blur-[1px] [transform:rotateY(180deg)]" : "blur-xl"}`}
             />
             <div class={`
               h-full relative z-10 grid grid-cols-1 grid-rows-[auto_1fr_1fr_auto] gap-4 
-              content-start ${selectedFilm.value === film.id ? "[transform:rotateY(180deg)]" : ""}
+              content-start ${isFilmSelected(film.id) ? "[transform:rotateY(180deg)]" : ""}
                   `}>
               
-                {selectedFilm.value === film.id ? (
+                {isFilmSelected(film.id) ? (
                     <>
                       <h2 class="text-lg font-bold text-amber-500 text-shadow-black inline-flex gap-1 flex-wrap justify-start">{film.title}</h2>
                       <p class="flex justify-start"><span className='bg-amber-100 px-2 py-1 content-start h-fit text-xs font-thin'>dir: {film.director}</span></p>

@@ -3,9 +3,11 @@ import { TrackWithFilms } from "../db/type.ts";
 import { Track } from "./Track.tsx";
 
 export const Dashboard = ({tracks}: {tracks: TrackWithFilms[]}) => {
-    const selectedIndexes = useSignal<number[]>([]);
-    const setSelectedIndexes = (index: number) => {
-        selectedIndexes.value = [...selectedIndexes.value, index];
+    const selectedIndexes = useSignal<string[]>([]);
+    const setSelectedIndexes = ({index, id}: {index: number, id: string}) => {
+        const newValue = [...selectedIndexes.value]
+        newValue[index] = id;
+        selectedIndexes.value = newValue;
     };
 
 
